@@ -27,9 +27,44 @@ video {
     display: inline-block;
 }
 
+/* Form label styling */
 .form-label {
+    color: #dc3545 !important; /* Red color for form labels */
     font-weight: 500;
     margin-bottom: 0.5rem;
+}
+
+/* Specific styling for login and register forms */
+#loginForm .form-label,
+#registerForm .form-label {
+    color: #dc3545 !important; /* Bright red */
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* Make sure modal text is visible */
+.modal-content {
+    background-color: white;
+}
+
+.modal-body {
+    color: #212529; /* Dark color for input text */
+}
+
+.modal-footer p {
+    color: #212529;
+}
+
+/* Input text color */
+.form-control {
+    color: #212529;
+}
+
+/* Ensure form validation messages are visible */
+.invalid-feedback {
+    color: #dc3545;
+    display: block;
 }
 
 .input-group {
@@ -82,4 +117,60 @@ video {
       height: 100px;
     }
   }
-  
+
+.modal-body {
+    color: #212529; /* Black color for other text */
+}
+
+.modal-footer p {
+    color: #212529; /* Black color for footer text */
+}
+
+.form-check-label {
+    color: #212529; /* Black color for checkbox labels */
+}
+
+/* Modal styling for better contrast */
+#loginModal .modal-content,
+#registerModal .modal-content {
+    background-color: #ffffff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+#loginModal .modal-body,
+#registerModal .modal-body {
+    background-color: #ffffff;
+}
+
+/* Modal title styling */
+.modal-title {
+    color: #212529 !important;
+    font-weight: 600;
+}
+
+#loginModal .modal-header,
+#registerModal .modal-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Enhanced form styling */
+#loginForm input,
+#registerForm input {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+}
+
+/* Enhanced form styling */
+#loginForm input,
+#registerForm input {
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+}
+
+/* Form validation message styling */
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
