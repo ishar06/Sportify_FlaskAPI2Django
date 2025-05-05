@@ -34,12 +34,10 @@ def login_view(request):
         user = authenticate(username=user.username, password=password)
         if user is not None:
             auth_login(request, user)
+            messages.success(request, f'Welcome back, {user.first_name if user.first_name else user.email}!')
             return JsonResponse({
                 'status': 'success',
-                'user': {
-                    'name': user.first_name,
-                    'email': user.email
-                }
+                'message': 'Login successful!'
             })
         else:
             messages.error(request, 'Invalid email or password.')
