@@ -34,10 +34,11 @@ def login_view(request):
         user = authenticate(username=user.username, password=password)
         if user is not None:
             auth_login(request, user)
-            messages.success(request, f'Welcome back, {user.first_name if user.first_name else user.email}!')
+            # Set user token in session
+            request.session['user_token'] = f"user_token_{user.id}"  # Simple token generation
             return JsonResponse({
                 'status': 'success',
-                'message': 'Login successful!'
+                'message': 'Login successful'
             })
         else:
             messages.error(request, 'Invalid email or password.')
@@ -72,8 +73,10 @@ def register_view(request):
                 first_name=name
             )
             
-            # You can store additional user data in session if needed
+            # Store additional user data in session
             request.session['user_phone'] = phone_number
+            # Set user token in session
+            request.session['user_token'] = f"user_token_{user.id}"
             
             return JsonResponse({
                 'status': 'success',

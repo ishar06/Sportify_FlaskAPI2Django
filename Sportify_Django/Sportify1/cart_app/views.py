@@ -61,7 +61,7 @@ def product_list(request, category_slug=None):
 def search(request):
     query = request.GET.get('query', '')
     products = Product.objects.filter(
-        Q(title__icontains=query) | Q(description__icontains=query)
+        Q(title__icontains=query) | Q(description__icontains(query))
     )
     return render(request, 'cart_app/search_results.html', {
         'query': query,
@@ -70,13 +70,6 @@ def search(request):
 
 @login_required
 def add_to_cart(request, product_id):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-        
     product = get_object_or_404(Product, id=product_id)
     
     # Check if product is in stock
@@ -106,16 +99,8 @@ def add_to_cart(request, product_id):
 
 @login_required
 def cart(request):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-    
     cart_items = CartItem.objects.filter(user=request.user)
     total = sum(item.get_total_price() for item in cart_items)
-
     return render(request, 'cart_app/cart.html', {
         'cart_items': cart_items,
         'total': total
@@ -124,13 +109,6 @@ def cart(request):
 
 @login_required
 def update_cart(request, item_id):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-        
     cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
     action = request.POST.get('action')
     
@@ -162,13 +140,6 @@ from user_app.models import Address
 
 @login_required
 def checkout(request):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-    
     cart_items = CartItem.objects.filter(user=request.user)
     
     if not cart_items:
@@ -191,7 +162,6 @@ def checkout(request):
     
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
-
         if form.is_valid():
             payment_method = form.cleaned_data['payment_method']
             
@@ -252,13 +222,6 @@ def checkout(request):
 
 @login_required
 def order_history(request):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-
     orders = Order.objects.filter(user=request.user).order_by('-order_date')
     return render(request, 'cart_app/orders.html', {'orders': orders})
 
