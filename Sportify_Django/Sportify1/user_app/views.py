@@ -20,53 +20,33 @@ def login_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         
-        # Send POST request to Flask API for login
-        response = requests.post('http://127.0.0.1:5000/login', json={
-            'email': email,
-            'password': password
-        })
+        # Try to get user by email
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, 'Invalid email or password.')
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid email or password'
+            }, status=400)
 
-        if response.status_code == 200:
-            data = response.json()
-            
-            # Store token and user info in session
-            request.session['user_token'] = data.get('token')
-            request.session['user_name'] = data.get('user', {}).get('name')
-            request.session['user_email'] = email
-            
-            # Create or get Django user and log them in
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                # Create a new Django user if they don't exist
-                user = User.objects.create_user(
-                    username=email,
-                    email=email,
-                    first_name=data.get('user', {}).get('name', '')
-                )
-                # Set a random password since auth is handled by Flask
-                user.set_password(User.objects.make_random_password())
-                user.save()
-            
-            # Important: Authenticate and login the user in Django
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
+        # Authenticate user
+        user = authenticate(username=user.username, password=password)
+        if user is not None:
             auth_login(request, user)
-            
-            # Return success response
             return JsonResponse({
                 'status': 'success',
-                'token': data.get('token'),
                 'user': {
-                    'name': data.get('user', {}).get('name'),
-                    'email': email
+                    'name': user.first_name,
+                    'email': user.email
                 }
             })
         else:
-            # Return error response
+            messages.error(request, 'Invalid email or password.')
             return JsonResponse({
                 'status': 'error',
-                'message': response.json().get('message', 'Login failed')
-            }, status=response.status_code)
+                'message': 'Invalid email or password'
+            }, status=400)
     
     return redirect('index')
 
@@ -85,34 +65,27 @@ def register_view(request):
                 'message': 'Email already registered'
             }, status=400)
         
-        # Sending POST request to Flask API for registration
-        payload = {
-            'name': name,
-            'email': email,
-            'phoneNumber': phone_number,
-            'password': password
-        }
-        
-        response = requests.post('http://127.0.0.1:5000/signup', json=payload)
-        
-        if response.status_code == 201:
-            # Create Django user
-            User.objects.create_user(
+        try:
+            # Create Django user with proper password
+            user = User.objects.create_user(
                 username=email,
                 email=email,
+                password=password,  # This will properly hash the password
                 first_name=name
             )
+            
+            # You can store additional user data in session if needed
+            request.session['user_phone'] = phone_number
             
             return JsonResponse({
                 'status': 'success',
                 'message': 'Registration successful! Please log in.'
             })
-        else:
-            error_message = response.json().get('message', 'Registration failed.')
+        except Exception as e:
             return JsonResponse({
                 'status': 'error',
-                'message': error_message
-            }, status=response.status_code)
+                'message': str(e)
+            }, status=400)
     
     return redirect('index')
 
@@ -230,13 +203,6 @@ def user_logout(request):
 
 @login_required
 def profile(request):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-    
     # Get user's addresses
     addresses = Address.objects.filter(user=request.user)
     
@@ -249,25 +215,11 @@ def profile(request):
 
 @login_required
 def cart(request):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-        
     return render(request, 'cart_app/cart.html')
 
 
 @login_required
 def address_list(request):
-    # Get auth token from session
-    auth_token = request.session.get('user_token')
-    
-    if not auth_token:
-        messages.error(request, 'Authentication required. Please login again.')
-        return redirect('login')
-        
     addresses = Address.objects.filter(user=request.user)
     return render(request, 'user_app/address_list.html', {'addresses': addresses})
 
