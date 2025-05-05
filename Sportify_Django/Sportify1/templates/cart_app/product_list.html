@@ -74,13 +74,7 @@
 </div>
 
 <div class="row">
-    {% if messages %}
-    <div class="container mt-3">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    </div>
-    {% endif %}
+    
 
     {% for product in products %}
     <div class="col-md-3 mb-4">
