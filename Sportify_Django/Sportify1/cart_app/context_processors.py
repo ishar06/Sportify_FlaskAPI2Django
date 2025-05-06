@@ -3,8 +3,7 @@ import random
 
 def cart_count(request):
     count = 0
-    # Check both Django authentication and Flask token
-    if request.user.is_authenticated and request.session.get('user_token'):
+    if request.user.is_authenticated:
         count = CartItem.objects.filter(user=request.user).count()
     return {'cart_count': count}
 

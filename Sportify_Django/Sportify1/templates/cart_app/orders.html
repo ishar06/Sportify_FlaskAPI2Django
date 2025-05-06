@@ -26,6 +26,11 @@
                         <p><strong>Total Amount:</strong> {{ order.total_amount }}/-</p>
                         <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
                         <p><strong>Status:</strong> {{ order.status }}</p>
+                        {% if order.status != 'Cancelled' and order.status != 'Delivered' %}
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal{{ order.id }}">
+                            Cancel Order
+                        </button>
+                        {% endif %}
                     </div>
                     <div class="col-md-6">
                         <h5>Shipping Address</h5>
@@ -60,6 +65,28 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Order Modal -->
+    <div class="modal fade" id="cancelModal{{ order.id }}" tabindex="-1" aria-labelledby="cancelModalLabel{{ order.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cancelModalLabel{{ order.id }}">Cancel Order #{{ order.id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel this order? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Order</button>
+                    <form method="post" action="{% url 'cancel_order' order.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Yes, Cancel Order</button>
+                    </form>
                 </div>
             </div>
         </div>

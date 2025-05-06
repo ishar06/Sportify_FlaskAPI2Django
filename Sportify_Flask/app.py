@@ -1,111 +1,49 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, jsonify, session, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash  # Import hashing functions
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 from flask_cors import CORS
-import jwt
+import logging
+
+# Add logging configuration
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Initialize Flask app
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.db")
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config['SECRET_KEY'] = 'your_secret_key'
-
-# Configure CORS
 CORS(app, resources={
-    r"/*": {
-        "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000", "http://127.0.0.1:8000"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True
+    r"/api/*": {
+        "origins": ["http://127.0.0.1:8000"],
+        "allow_headers": ["Content-Type"],
+        "methods": ["GET", "POST", "OPTIONS"]
     }
 })
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.db")
+app.config["SQLALCHEMY_TRACK_MODIFICATION"] = False
+app.config['SECRET_KEY'] = 'your_secret_key'
+
+@app.context_processor
+def utility_processor():
+    def get_static_url(filename):
+        return f'http://127.0.0.1:5000/static/{filename.lstrip("/")}'
+    return dict(get_static_url=get_static_url)
 
 db = SQLAlchemy(app)
 
 # Initializing Flask-Login
 login_manager = LoginManager(app)
-login_manager.login_view = 'index'
+login_manager.login_view = 'index'  
 
 # User Loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
-# Dummy users
-users = []
-
-@app.route('/api/login', methods=['POST'])
-def api_login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-
-    user = User.query.filter_by(email=email).first()
-
-    if user and check_password_hash(user.password, password):
-        token = jwt.encode({
-            'user_id': user.id,
-            'exp': datetime.utcnow() + timedelta(hours=24)
-        }, app.config['SECRET_KEY'], algorithm='HS256')
-
-        return jsonify({'message': 'Login successful', 'token': token, 'user': {
-            'id': user.id,
-            'name': user.name,
-            'email': user.email
-        }}), 200
-
-    return jsonify({'error': 'Invalid credentials'}), 401
-
-
-@app.route('/api/about', methods=['GET'])
-def about_api():
-    data = {
-        "title": "Redefining Sports Excellence",
-        "description": "At Sportify, we're revolutionizing the sports industry through innovation, passion, and cutting-edge technology.",
-        "team": [
-            {
-                "name": "Ishardeep Singh",
-                "role": "Team Leader",
-                "bio": "I’m a first-year B.Tech student at Chitkara University, specializing in Computer Science with a focus on AI.",
-                "image": "http://localhost:5000/static/images/ishar.jpeg",
-                "linkedin": "https://www.linkedin.com/in/ishardeep-singh-743789311/",
-                "github": "https://github.com/ishar06"
-            },
-            {
-                "name": "Aryan Verma",
-                "role": "Team Member",
-                "bio": "I’m Aryan Verma, a first-year B.Tech student at Chitkara University.",
-                "image": "http://localhost:5000/static/images/aryan.jpeg",
-
-                "linkedin": "https://www.linkedin.com/in/aryan-verma-638594320/",
-                "github": "https://github.com/Aryan-verma-ai"
-            },
-            {
-                "name": "Damanjeet Singh",
-                "role": "Team Member",
-                "bio": "I’m Damanjeet Singh, a first-year B.Tech student at Chitkara University.",
-                "image": "http://localhost:5000/static/images/daman.jpeg",
-                "linkedin": "https://www.linkedin.com/in/damanjeet-singh-834596316/",
-                "github": "https://github.com/daman-max"
-            },
-            {
-                "name": "Madhav Garg",
-                "role": "Team Member",
-                "bio": "I’m Madhav Garg, a first-year B.Tech student at Chitkara University.",
-                "image": "http://localhost:5000/static/images/madhav.jpeg",
-                "linkedin": "https://www.linkedin.com/in/madhav-garg-059b4b339/",
-                "github": "https://github.com/madhav205"
-            }
-        ]
-    }
-    return jsonify(data)
 
 
 #--------------- MODELS --------------------------
@@ -193,54 +131,19 @@ def order_history():
 
 @app.route('/login', methods=['POST'])
 def login():
-    try:
-        # Get the data whether it's JSON or form data
-        if request.is_json:
-            data = request.get_json()
-            email = data.get('email')
-            password = data.get('password')
-        else:
-            email = request.form.get('email')
-            password = request.form.get('password')
-
-        if not email or not password:
-            return jsonify({
-                'status': 'fail',
-                'message': 'Email and password are required'
-            }), 400
-
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
         user = User.query.filter_by(email=email).first()
 
+        # Check if user exists and verify hashed password
         if user and check_password_hash(user.password, password):
             login_user(user)
-            
-            # Generate JWT token
-            token = jwt.encode({
-                'user_id': user.id,
-                'exp': datetime.utcnow() + timedelta(hours=24)
-            }, app.config['SECRET_KEY'], algorithm='HS256')
-
-            return jsonify({
-                'status': 'success',
-                'message': 'Login successful',
-                'token': token,
-                'user': {
-                    'id': user.id,
-                    'name': user.name,
-                    'email': user.email
-                }
-            }), 200
+            flash('Login successful!', 'success')
         else:
-            return jsonify({
-                'status': 'fail',
-                'message': 'Invalid email or password'
-            }), 401
+            flash('Login failed. Please check your email and password.', 'danger')
 
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500
+    return redirect(url_for('index'))
 
 @app.route('/logout')
 @login_required
@@ -251,65 +154,26 @@ def logout():
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    try:
-        # Get the data from either JSON or form data
-        if request.is_json:
-            data = request.get_json()
-        else:
-            data = request.form
+    name = request.form.get('name')
+    email = request.form.get('email')
+    phone_number = request.form.get('phoneNumber')
+    password = request.form.get('password')
 
-        # Extract data with validation
-        name = data.get('name')
-        email = data.get('email')
-        phone_number = data.get('phoneNumber')
-        password = data.get('password')
+    # Check if the email already exists
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        flash('Email already registered. Please use a different email or log in.', 'error')
+        return redirect(url_for('index'))
 
-        # Validate required fields
-        if not all([name, email, phone_number, password]):
-            return jsonify({
-                'status': 'error',
-                'message': 'Missing required fields'
-            }), 400
+    # Create a new user
+    hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+    new_user = User(name=name, email=email, phone_number=phone_number, password=hashed_password)
 
-        # Check for existing user
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return jsonify({
-                'status': 'error',
-                'message': 'Email already registered'
-            }), 409
+    db.session.add(new_user)
+    db.session.commit()
 
-        # Create new user
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
-        new_user = User(
-            name=name,
-            email=email,
-            phone_number=phone_number,
-            password=hashed_password
-        )
-
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Auto login after registration
-        login_user(new_user)
-
-        return jsonify({
-            'status': 'success',
-            'message': 'Registration successful',
-            'user': {
-                'id': new_user.id,
-                'name': new_user.name,
-                'email': new_user.email
-            }
-        }), 201
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'status': 'error',
-            'message': str(e)
-        }), 500
+    flash('Registration successful! Please log in.', 'success')
+    return redirect(url_for('index'))
 
 @app.route('/update_user', methods=['POST'])
 @login_required
@@ -377,7 +241,13 @@ def inject_user_address():
 
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html', _is_api=False)
+
+@app.route('/api/about')
+def about_api():
+    return jsonify({
+        'content': render_template('about.html', _is_api=True)
+    })
 
 @app.route('/tc')
 def tc():
@@ -391,13 +261,51 @@ def privacyPolicy():
 def exchangePolicy():
     return render_template('exchangePolicy.html')
 
+@app.route('/api/exchange-policy')
+def exchange_policy_api():
+    try:
+        # Render the template with _is_api=True to skip base template
+        content = render_template('exchangePolicy.html', _is_api=True)
+        return jsonify({
+            'content': content
+        })
+    except Exception as e:
+        logger.error(f'Error in exchange_policy_api: {str(e)}')
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/blogs')
 def blogs():
-    return render_template('blogs.html')
+    return render_template('blogs.html', _is_api=False)
+
+@app.route('/api/blogs')
+def blogs_api():
+    try:
+        logger.debug('Rendering blogs.html with _is_api=True')
+        content = render_template('blogs.html', _is_api=True)
+        logger.debug('Successfully rendered blogs.html')
+        return jsonify({
+            'content': content
+        })
+    except Exception as e:
+        logger.error(f'Error in blogs_api: {str(e)}')
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/csr')
 def csr():
-    return render_template('csr.html')
+    return render_template('csr.html', _is_api=False)
+
+@app.route('/api/csr')
+def csr_api():
+    try:
+        # We pass _is_api=True to use the empty.html template
+        content = render_template('csr.html', _is_api=True)
+        # Return just the main content div
+        return jsonify({
+            'content': content
+        })
+    except Exception as e:
+        logger.error(f'Error in csr_api: {str(e)}')
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/basketball')
 def basketball():
@@ -430,6 +338,13 @@ def hockey():
 @app.route('/trekking')
 def trekking():
     return render_template('trekking.html', products=trekking_products)
+
+
+
+
+
+
+
 
 # ------ ADMIN AUTHENTICATION & AUTHORIZATION -------
 
@@ -631,6 +546,16 @@ def find_product_category(product_id):
     
     return None
 
+
+
+
+
+
+
+
+
+
+
 #----PRODUCTS-------
 basketball_products = [
     {"id": 1, "image": "static/images/basketball1.webp", "title": "Varsity Outdoor Basketball", "description": 'Official size and Weight: Size 7, 29.5"', "price": "1500/-", "stock": 15},
@@ -694,6 +619,8 @@ for product in (basketball_products + football_products + cricket_products +
                 volleyball_products + badminton_products + tabletennis_products + 
                 hockey_products + trekking_products):
     all_products[product['id']] = product
+
+
 
 #------ CART ------------
 
@@ -895,5 +822,10 @@ def inject_cart_count():
 def animation():
     return render_template('animation.html')
 
+
+
+
+
+# Running the application
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

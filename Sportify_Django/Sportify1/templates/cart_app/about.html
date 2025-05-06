@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block title %}About Us | Sportify{% endblock %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 {% block extra_css %}
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
@@ -225,43 +224,23 @@
 
 <!-- About Hero -->
 <section class="about-hero">
-    <div class="floating-elements">
-        <div class="floating-element" style="left: 10%; top: 20%;">
-            <i class="fas fa-futbol fa-3x"></i>
-        </div>
-        <!-- Add more floating elements if needed -->
-    </div>
+    <section class="team-section">
+        {% if about_content %}
+            {{ about_content|safe }}
+        {% else %}
+            <p>Team info is currently unavailable.</p>
+        {% endif %}
+    </section>
     
-    <div class="hero-content">
-        <h1 class="hero-title">{{ title }}</h1>
-        <p class="hero-text">{{ description }}</p>
-        
-    </div>
 </section>
 
 <!-- Team Section -->
 <section class="team-section">
-    <div class="team-grid">
-        {% for member in team %}
-        <div class="team-member">
-            <div class="member-image">
-                <img src="{{ member.image }}" alt="{{ member.name }}">
-            </div>
-            <h3 class="member-name">{{ member.name }}</h3>
-            <p class="member-role">{{ member.role }}</p>
-            <p class="member-bio">{{ member.bio }}</p>
-            <div class="social-links">
-                <a href="{{ member.linkedin }}" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="{{ member.github }}" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="mailto:{{ member.email }}"><i class="fas fa-envelope"></i></a>
-                <!-- Customize if needed -->
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+    <section class="team-section">
+        {{ about_content|safe }}
+    </section>
     
 </section>
-
 
 {% endblock %}
 

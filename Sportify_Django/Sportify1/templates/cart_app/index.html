@@ -61,7 +61,7 @@
 
 
 
-<div id="categories" class="row  m-5 p-4">
+<div id="categories" class="row mt-5">
     <h2 class="text-center mb-4">Shop by Category</h2>
     
     {% for category in categories %}
@@ -88,7 +88,7 @@
     
     {% for product in featured_products %}
     <div class="col-md-3 mb-4">
-        <div class="card h-100 ">
+        <div class="card h-100">
             <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
             <div class="card-body">
                 <h5 class="card-title">{{ product.title }}</h5>

@@ -1,6 +1,7 @@
 from django import forms
 from django.core.validators import RegexValidator
 from .models import Product, Category, Subscription
+from user_app.models import Address
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -29,8 +30,15 @@ class CheckoutForm(forms.Form):
     PAYMENT_CHOICES = (
         ('card', 'Credit/Debit Card'),
         ('cod', 'Cash on Delivery'),
+        ('gift_card', 'Gift Card'),
+        ('coupon', 'Coupon'),
     )
     
+    shipping_address = forms.ModelChoiceField(
+        queryset=Address.objects.none(),
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        empty_label=None
+    )
     payment_method = forms.ChoiceField(
         choices=PAYMENT_CHOICES,
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'})
@@ -75,6 +83,25 @@ class CheckoutForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     
+    # Gift card details
+    gift_card_number = forms.CharField(
+        required=False,
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    # Coupon details
+    coupon_code = forms.CharField(
+        required=False,
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['shipping_address'].queryset = Address.objects.filter(user=user)
+    
     def clean(self):
         cleaned_data = super().clean()
         payment_method = cleaned_data.get('payment_method')
@@ -87,6 +114,16 @@ class CheckoutForm(forms.Form):
             
             if not all([card_number, expiry_date, cvv, card_name]):
                 raise forms.ValidationError('All card details are required.')
+        
+        elif payment_method == 'gift_card':
+            gift_card_number = cleaned_data.get('gift_card_number')
+            if not gift_card_number:
+                raise forms.ValidationError('Gift card number is required.')
+        
+        elif payment_method == 'coupon':
+            coupon_code = cleaned_data.get('coupon_code')
+            if not coupon_code:
+                raise forms.ValidationError('Coupon code is required.')
         
         return cleaned_data
 

@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" if not _is_api else "empty.html" %}
 
 {% block title_block %}CSR Policy | Sportify{% endblock %}
 
@@ -22,12 +22,11 @@
         color: #555;
     }
 
-    /* Decrease the size of the image */
     .card img {
-        max-width: 80%;  /* Limit image width to 80% of its parent */
-        height: auto;    /* Maintain aspect ratio */
-        margin: 0 auto;  /* Center the image */
-        display: block;  /* Make the image a block element to center it */
+        max-width: 80%;
+        height: auto;
+        margin: 0 auto;
+        display: block;
     }
 </style>
 {% endblock %}

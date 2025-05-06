@@ -42,12 +42,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "cart_app",
     "user_app",
-    "corsheaders",  # Add this line
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # Add this line - must be at the top
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -57,6 +57,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "Sportify1.urls"
+
 
 
 TEMPLATES = [
@@ -74,32 +75,10 @@ TEMPLATES = [
                 'cart_app.context_processors.categories_processor',
                 'cart_app.context_processors.featured_products',
                 'user_app.context_processors.user_address',
-                'user_app.context_processors.user_context',
             ],
         },
     },
 ]
-
-
-# TEMPLATES = [
-#     {
-#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#         'DIRS': [os.path.join(BASE_DIR, 'templates')],
-#         'APP_DIRS': True,
-#         'OPTIONS': {
-#             'context_processors': [
-#                 'django.template.context_processors.debug',
-#                 'django.template.context_processors.request',
-#                 'django.contrib.auth.context_processors.auth',
-#                 'django.contrib.messages.context_processors.messages',
-#                 'cart_app.context_processors.cart_count',
-#                 'cart_app.context_processors.categories_processor',
-#                 'cart_app.context_processors.featured_products',
-#                 'user_app.context_processors.user_address',
-#             ],
-#         },
-#     },
-# ]
 
 WSGI_APPLICATION = "Sportify1.wsgi.application"
 
@@ -184,40 +163,19 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-# CORS Settings
+# CORS settings
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 CORS_ALLOW_CREDENTIALS = True
+
+# CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5000",
-    "http://localhost:5000",
 ]
 CORS_ALLOW_METHODS = [
-    'DELETE',
     'GET',
-    'OPTIONS',
-    'PATCH',
     'POST',
-    'PUT',
+    'OPTIONS'
 ]
 CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+    'Content-Type',
 ]
-
-# Session Configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
-SESSION_SAVE_EVERY_REQUEST = True
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-
-# Authentication settings
-LOGIN_URL = '/user/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'

@@ -1,10 +1,14 @@
+{% if not _is_api %}
 {% extends "base.html" %}
+{% endif %}
 
 {% block title_block %}About Us | Sportify{% endblock %}
 
 {% block styles %}
+{% if not _is_api %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+{% endif %}
 
     <style>
         :root {
@@ -218,99 +222,95 @@
 
 {% endblock %}
 
-
-
-
 {% block main_block %}
-
-<!-- About Hero -->
-<section class="about-hero">
-    <div class="floating-elements">
-        <div class="floating-element" style="left: 10%; top: 20%;">
-            <i class="fas fa-futbol fa-3x"></i>
+<div id="about-content">
+    <!-- About Hero -->
+    <section class="about-hero">
+        <div class="floating-elements">
+            <div class="floating-element" style="left: 10%; top: 20%;">
+                <i class="fas fa-futbol fa-3x"></i>
+            </div>
+            <!-- Add more floating elements if needed -->
         </div>
-        <!-- Add more floating elements if needed -->
-    </div>
-    
-    <div class="hero-content">
-        <h1 class="hero-title">Redefining Sports Excellence</h1>
-        <p class="hero-text">
-            At Sportify, we're revolutionizing the sports industry through innovation, passion, 
-            and cutting-edge technology. Our team of experts brings decades of combined experience 
-            to create unforgettable sporting experiences.
-        </p>
-    </div>
-</section>
+        
+        <div class="hero-content">
+            <h1 class="hero-title">Redefining Sports Excellence</h1>
+            <p class="hero-text">
+                At Sportify, we're revolutionizing the sports industry through innovation, passion, 
+                and cutting-edge technology. Our team of experts brings decades of combined experience 
+                to create unforgettable sporting experiences.
+            </p>
+        </div>
+    </section>
 
-<!-- Team Section -->
-<section class="team-section">
-    <div class="team-grid">
-        <!-- Team Member 1 -->
-        <div class="team-member">
-            <div class="member-image">
-                <img src="../static/images/ishar.jpeg" alt="Ishardeep Singh">
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="team-grid">
+            <!-- Team Member 1 -->
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPyJrQ9vv0gqyWzRq1VOF96mDGg4vrX8dwqA&s" alt="Ishardeep Singh">
+                </div>
+                <h3 class="member-name">Ishardeep Singh</h3>
+                <p class="member-role">Team Leader</p>
+                <p class="member-bio">I’m a first-year B.Tech student at Chitkara University, specializing in Computer Science with a focus on AI.</p>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/ishardeep-singh-743789311/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/ishar06" target="_blank"><i class="fab fa-github" target="_blank"></i></a>
+                    <a href="mailto:ishardeep3195.beai24@chitkara.edu.in"><i class="fas fa-envelope"></i></a>
+                </div>
             </div>
-            <h3 class="member-name">Ishardeep Singh</h3>
-            <p class="member-role">Team Leader</p>
-            <p class="member-bio">I’m a first-year B.Tech student at Chitkara University, specializing in Computer Science with a focus on AI.</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/ishardeep-singh-743789311/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/ishar06" target="_blank"><i class="fab fa-github" target="_blank"></i></a>
-                <a href="#"><i class="fas fa-globe"></i></a>
+
+            <!-- Team Member 2 -->
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="https://static.wikia.nocookie.net/villains/images/5/54/Light_YagamiHD.jpg/revision/latest?cb=20180414020152" alt="Aryan Verma">
+                </div>
+                <h3 class="member-name">Aryan Verma</h3>
+                <p class="member-role">Team member</p>
+                <p class="member-bio">I’m Aryan Verma, a first-year B.Tech student at Chitkara University, Punjab.</p>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/aryan-verma-638594320/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/Aryan-verma-ai" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="mailto:aryan3181.beai24@chitkara.edu.in"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+
+            <!-- Team Member 3 -->
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQC8ArbxfxXe2BVgxX6wbE6qGZYth51mBSVlg&s" alt="Damanjeet singh">
+                </div>
+                <h3 class="member-name">Damanjeet Singh</h3>
+                <p class="member-role">Team Member</p>
+                <p class="member-bio">I’m Damanjeet Singh, a first-year B.Tech student at Chitkara University.</p>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/damanjeet-singh-834596316/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/daman-max" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="mailto:damanjeet3183.beai24@chitkara.edu.in"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+
+            <!-- Team Member 4 -->
+            <div class="team-member">
+                <div class="member-image">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5lSFDKzM3JBM8MxUuwN1pwM7uL9b4Kq17bQ&s" alt="Madhav Garg">
+                </div>
+                <h3 class="member-name">Madhav Garg</h3>
+                <p class="member-role">Team Member</p>
+                <p class="member-bio">I’m Madhav Garg, a first-year B.Tech student at Chitkara University.</p>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/in/madhav-garg-059b4b339/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/madhav205" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="mailto:madhav3219.beai24@chitkara.edu.in"><i class="fas fa-envelope"></i></a>
+                </div>
             </div>
         </div>
-
-        <!-- Team Member 2 -->
-        <div class="team-member">
-            <div class="member-image">
-                <img src="../static/images/aryan.jpeg" alt="Aryan Verma">
-            </div>
-            <h3 class="member-name">Aryan Verma</h3>
-            <p class="member-role">Team member</p>
-            <p class="member-bio">I’m Aryan Verma, a first-year B.Tech student at Chitkara University.</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/aryan-verma-638594320/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/Aryan-verma-ai" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="#"><i class="fas fa-globe"></i></a>
-            </div>
-        </div>
-
-        <!-- Team Member 3 -->
-        <div class="team-member">
-            <div class="member-image">
-                <img src="../static/images/daman.jpeg" alt="Damanjeet singh">
-            </div>
-            <h3 class="member-name">Damanjeet Singh</h3>
-            <p class="member-role">Team Member</p>
-            <p class="member-bio">I’m Damanjeet Singh, a first-year B.Tech student at Chitkara University.</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/damanjeet-singh-834596316/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/daman-max" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="#"><i class="fas fa-globe"></i></a>
-            </div>
-        </div>
-
-        <!-- Team Member 4 -->
-        <div class="team-member">
-            <div class="member-image">
-                <img src="../static/images/madhav.jpeg" alt="Madhav Garg">
-            </div>
-            <h3 class="member-name">Madhav Garg</h3>
-            <p class="member-role">Team Member</p>
-            <p class="member-bio">I’m Madhav Garg, a first-year B.Tech student at Chitkara University.</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/in/madhav-garg-059b4b339/" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/madhav205" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="#"><i class="fas fa-globe"></i></a>
-            </div>
-        </div>
-    </div>
-</section>
-
-
+    </section>
+</div>
 {% endblock %}
 
-
+{% if not _is_api %}
 {% block scripts %}
 <script>
     // Intersection Observer for scroll animations
@@ -327,3 +327,4 @@
     });
 </script>
 {% endblock %}
+{% endif %}
